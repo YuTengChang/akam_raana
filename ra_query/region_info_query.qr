@@ -1,0 +1,50 @@
+select a.region region, 
+       a.ecor ecor, 
+       b.service service, 
+       c.name name, 
+       c.ng ng, 
+       case when c.prp='private' then 1 else 0 end prp, 
+       c.lat lat, 
+       c.lon lon
+from
+
+(
+select d.region region, 
+       d.ecor ecor, 
+       d.name ecorname, 
+       e.contract contract, 
+       e.typeActual typeActual, 
+       e.status status
+from
+(select region,
+       ecor,
+       name
+from MCM_RegionsV2) d,
+
+(select ecor, contract, typeActual, status 
+from MCM_Ecors) e
+where d.ecor=e.ecor
+) a,
+
+(
+select physicalRegion regionid,
+       service
+from MCM_RegionLocation
+where service not in ('n/a') 
+) b,
+
+(
+select physicalRegion, 
+       name,
+       provider,
+       numGhosts ng,
+       prp,
+       capacity,
+       CAST(latitude as FLOAT)/1000 lat,
+       CAST(longitude as FLOAT)/1000 lon
+from MCM_Regions
+) c
+
+where a.region=b.regionid 
+and a.region=c.physicalRegion
+order by a.region;

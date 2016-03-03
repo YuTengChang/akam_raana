@@ -1,0 +1,23 @@
+add jar /a/libexec/ddr-1.0.jar;
+
+CREATE DATABASE IF NOT EXISTS RAANA;
+USE RAANA;
+
+drop table ns_info;
+
+create external table ns_info (
+    nsIP STRING,
+    asnum INT,
+    country STRING,
+    continent STRING,
+    lat FLOAT,
+    lon FLOAT,
+    ppIP STRING,
+    demand DOUBLE,
+    mpgid INT)
+
+partitioned by (uuid STRING)
+row format delimited
+fields terminated by ','
+lines terminated by '\n'
+location '/ghostcache/hadoop/data/RAANA/ns_info';

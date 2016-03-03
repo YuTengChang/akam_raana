@@ -1,0 +1,19 @@
+USE RAANA;
+
+drop table if exists ra_full_map;
+
+CREATE EXTERNAL TABLE ra_full_map
+  PARTITIONED BY (datestamp string, uuid string, ts string)
+  ROW FORMAT SERDE
+  'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+  STORED AS INPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+  OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+  LOCATION
+  '/ghostcache/hadoop/data/RAANA/ra_full_map'
+  TBLPROPERTIES (
+    'avro.schema.url'='file:///home/testgrp/RAAnalysis/pig/ra_full_map.avsc'
+    );
+
+MSCK REPAIR TABLE ra_full_map;

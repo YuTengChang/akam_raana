@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+# $Id: //projects/map/mapDispatcher-8.9/akamai/mapDispatcher/PrintMessage.pl#1 $
+use strict;
+$SIG{__WARN__} = sub { die @_; };
+
+use Getopt::Long;
+
+my $defaultbin = '/usr/local/akamai/bin';
+
+sub usage {
+    print STDERR <<EOF;
+usage: $0 [--bindir=<dir>] [--list-types] [--extra-args=<args>] [--help] file...
+   --bindir       include <dir> as a place to look for PrintMessage*
+                  (can be given more than once) 
+		  default=$defaultbin
+   --list-types   do not print, just show which PrintMessage* support
+                  which types
+   --extra-args   pass <args> through to PrintMessage*
+   --help         print this message
+EOF
+;
+    exit(1);
+}
+
+my @bindirs;
+my $listtypes = 0;
+my $extraargs = "";
+my $help = 0;
+
+GetOptions("bindir=s" => \@bindirs, 
+	   "list-types" => \$listtypes,
+	   "extra-args=s" => \$extraargs,
+	   "help" => \$help,
+	   ) or usage();
+usage() if ($help || (! @ARGV && !$listtypes));
+push @bindirs, $defaultbin unless @bindirs;
+
+# figure out whihc subprograms handle which types
+my %type2prog;
+my $printinfo;
+for my $bin (@bindirs) {
+    for my $prog (glob("$bin/PrintMessage*")) {
+	next unless -x $prog;
+	next if $prog eq "$bin/PrintMessage";
+        if ($prog =~ /^($bin\/PrintMessageInfo(\.exe)?)$/) {
+          $printinfo = $1;
+          next;
+	}
+	my $supp = `$prog --list-types`;
+	for my $line (split /\n/, $supp) {
+	    print "$prog: $line\n" if $listtypes;
+	    my ($supptype) = $line =~ /(\d+)/;
+	    $type2prog{$supptype} = $prog if defined $supptype;
+	}
+    }
+}
+# we're in trouble if we can't find PrintMessageInfo
+if (!defined $printinfo) {
+    print STDERR "failed to find PrintMessageInfo in @bindirs\n";
+    exit(1);
+}
+
+exit(0) if $listtypes;
+
+# do it
+for my $file (@ARGV) {
+    my $info = `$printinfo $file`;
+    if ($?) {
+	print STDERR "$printinfo failed on $file\n";
+	exit(1);
+    }
+    my ($type) = $info =~ /type = (\d+),/;
+
+    if (defined $type2prog{$type}) {
+	if (system("$type2prog{$type} $extraargs $file")) {
+	    print STDERR "$type2prog{$type} $extraargs failed on $file\n";
+	    exit(1);
+	}
+    } else {
+	print STDERR "$file: failed to find a PrintMessage suppporting type $type\n";
+    }
+}
+
+

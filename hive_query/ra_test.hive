@@ -1,0 +1,14 @@
+ADD FILE /home/testgrp/RAAnalysis/ra_python/tr_distance.py;
+USE RAANA;
+SET hive.cli.print.header=true;
+
+SELECT a.* from
+(
+SELECT
+  TRANSFORM (region, ecor, service, rg_name, nghost, prp, lat, lon, datestamp)
+    USING 'tr_distance.py' AS
+    (region INT, ecor INT, service STRING, rg_name STRING,
+     nghost INT, prp INT, lat FLOAT, lon FLOAT, test_distance FLOAT)
+FROM
+  rg_info where datestamp='20151227') a
+LIMIT 10;

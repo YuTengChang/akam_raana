@@ -1,0 +1,139 @@
+USE RAANA;
+SET hive.cli.print.header=true;
+
+SELECT cover.* FROM
+(
+  SELECT
+    c.nsIP,
+    c.demand,
+    c.geoid,
+    c.ns_continent,
+    c.ns_country,
+    c.ns_city,
+    c.ns_lat,
+    c.ns_lon,
+    c.nsASN,
+    c.ppIP,
+    c.pp_lat,
+    c.pp_lon,
+    c.ppASN,
+    c.mpgid,
+    c.mrid,
+    c.mpg_type,
+    c.link,
+    c.cnt,
+    c.min_s,
+    c.max_s,
+    c.min_r,
+    c.max_r,
+    c.t_st,
+    c.sc_ping,
+    c.sc_local,
+    c.sc_cont,
+    c.dftime,
+    c.region,
+    d.ecor,
+    d.service,
+    d.rg_name,
+    d.nghost,
+    d.prp,
+    d.lat rg_lat,
+    d.lon rg_lon,
+    c.d_nspp,
+    c.ns_datestamp,
+    c.ra_datestamp,
+    d.datestamp rg_datestamp,
+    c.ns_uuid,
+    c.ra_uuid,
+    c.ts
+  FROM
+  (
+    SELECT * FROM rg_info
+    WHERE
+      datestamp='20151218'
+  ) d
+  JOIN
+  (
+    SELECT
+      a.nsip,
+      a.demand,
+      a.geoid,
+      a.continent ns_continent,
+      a.country ns_country,
+      a.city ns_city,
+      a.lat ns_lat,
+      a.lon ns_lon,
+      a.nsasn nsASN,
+      a.ppip,
+      a.pplat pp_lat,
+      a.pplon pp_lon,
+      a.ppasn ppASN,
+      b.mpgid,
+      b.mrid,
+      b.mpg_type,
+      b.region,
+      b.link,
+      b.cnt,
+      b.min_s,
+      b.max_s,
+      b.min_r,
+      b.max_r,
+      b.t_st,
+      b.sc_ping,
+      b.sc_local,
+      b.sc_cont,
+      b.dftime,
+      a.datestamp ns_datestamp,
+      b.datestamp ra_datestamp,
+      a.uuid ns_uuid,
+      b.uuid ra_uuid,
+      b.ts ts,
+      a.d_nspp
+  FROM
+      (
+          SELECT * FROM ns_info
+          WHERE
+            datestamp='20151218' and
+            uuid='28126932-a5b1-11e5-b44e-300ed5c5f881'
+      ) a
+  JOIN
+      (
+          SELECT
+            mpgid,
+            mrid,
+            mpg_type,
+            region,
+            link,
+            cnt,
+            min_s,
+            max_s,
+            min_r,
+            max_r,
+            t_st,
+            CASE WHEN (pmod(min_s,2)<1) THEN 1.0 ELSE 0.0 END sc_ping,
+            CASE WHEN (pmod(min_s,4)>1) THEN 1.0 ELSE 0.0 END sc_local,
+            CASE WHEN (max_s=65535 AND max_r=255) THEN 1.0 ELSE 0.0 END sc_cont,
+            dftime,
+            datestamp,
+            uuid,
+            ts
+          FROM
+            ra_map
+          WHERE
+            datestamp='20151218' and
+            uuid='28126932-a5b1-11e5-b44e-300ed5c5f881' and
+            ts='1450470015'
+      ) b
+  ON
+      a.uuid=b.uuid
+      AND
+      a.datestamp=b.datestamp
+      AND
+      a.mpgid=b.mpgid
+  ) c
+  ON
+    d.datestamp=c.ns_datestamp
+    AND
+    c.region=d.region
+)cover
+LIMIT 1;

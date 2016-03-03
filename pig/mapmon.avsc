@@ -1,0 +1,21 @@
+{
+    "namespace": "com.akamai.avro.mapmon",
+    "type": "record",
+    "name": "mapmon",
+    "doc": "mapmon summary for an mpg/region at a point in time",
+    "fields": [
+        {"name": "mpg", "type": ["int", "null"], "doc": "mpgid"},
+        {"name": "mrule", "type": ["int", "null"], "doc": "maprule"},
+        {"name": "mpg_type", "type": ["int", "null"], "doc": "mpg type"},
+        {"name": "reg", "type": ["int", "null"], "doc": "region"},
+        {"name": "link", "type": ["int", "null"], "doc": "link"},
+        {"name": "cnt", "type": ["int", "null"], "doc": "number of such mappings"},
+        {"name": "min_s", "type": ["int", "null"], "doc": "min score"},
+        {"name": "max_s", "type": ["int", "null"], "doc": "max score"},
+        {"name": "min_r", "type": ["int", "null"], "doc": "min rank starting from 0"},
+        {"name": "max_r", "type": ["int", "null"], "doc": "max rank starting from 0"},
+        {"name": "t_st", "type": ["int", "null"], "doc": "Seconds since epoch"},
+        {"name": "t_end", "type": ["int", "null"], "doc": "Seconds since epoch"},
+        {"name": "mpd_uuid", "type": ["string", "null"], "doc": "The MPD message that governs this record"}
+    ]
+}

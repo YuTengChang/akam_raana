@@ -1,0 +1,37 @@
+USE RAANA;
+
+drop table ramap;
+
+CREATE EXTERNAL TABLE ramap
+  PARTITIONED BY (datestamp string, uuid string, ts string)
+  ROW FORMAT SERDE
+  'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+  STORED AS INPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+  OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+  LOCATION
+  '/ghostcache/hadoop/data/RAANA/ramap'
+  TBLPROPERTIES (
+    'avro.schema.literal'='{
+        "namespace": "com.akamai.avro.mapmon",
+        "type": "record",
+        "name": "mapmon",
+        "doc": "mapmon summary for an mpg/region at a point in time",
+        "fields": [
+            {"name": "mpgid", "type": ["int", "null"], "aliases": ["mpg"], "doc": "mpgid"},
+            {"name": "mrid", "type": ["int", "null"], "doc": "mrid"},
+            {"name": "mpg_type", "type": ["int", "null"], "doc": "mpg type"},
+            {"name": "region", "type": ["int", "null"], "aliases": ["reg"], "doc": "region"},
+            {"name": "link", "type": ["int", "null"], "doc": "link"},
+            {"name": "cnt", "type": ["int", "null"], "doc": "number of such mappings"},
+            {"name": "min_s", "type": ["int", "null"], "doc": "min score"},
+            {"name": "max_s", "type": ["int", "null"], "doc": "max score"},
+            {"name": "min_r", "type": ["int", "null"], "doc": "min rank starting from 0"},
+            {"name": "max_r", "type": ["int", "null"], "doc": "max rank starting from 0"},
+            {"name": "dftime", "type": ["int", "null"], "doc": "window length of RA msg in second"},
+            {"name": "mpd_uuid", "type": ["string", "null"], "doc": "The MPD message that governs this record"}
+        ]
+    }');
+
+MSCK REPAIR TABLE ramap;

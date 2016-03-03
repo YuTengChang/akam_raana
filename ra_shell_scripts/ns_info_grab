@@ -1,0 +1,31 @@
+#!/bin/bash
+# cron task to query mako and obtain ns information, saved in /home/ychang/Documents/Projects/09-SystemInfo/NS_info/ 
+
+# logging
+echo "****** kicking off the region information message grabbing at" `date` "******"
+
+# get time
+epochtime=`date +%s`
+Year=`date -d @$epochtime -u +%Y`
+Month=`date -d @$epochtime -u +%m`
+Day=`date -d @$epochtime -u +%d`
+Hour=`date -d @$epochtime -u +%H`
+
+# file name
+ns_info_file=$(echo "ns_info_"$Year$Month$Day".txt")
+#echo $ns_info_file
+
+# file location
+ns_info_dir="/home/testgrp/RAAnalysis/ra_data/ns_info/"
+#ns_info_dir="/home/ychang/Documents/Projects/09-SystemInfo/NS_info/"
+#echo $ns_info_dir
+
+# backup location
+#bk_dir="/home/ychang/Documents/Projects/09-SystemInfo/NS_info/"
+#echo $bk_dir
+
+# grab the file by talking to MAKO from MC2
+/home/ychang/bin/mako -s "select IP, ASNUM, COUNTRY, CONTINENT,LATITUDE, LONGITUDE, PINGPOINT, DEMAND from ns_info where demand>0.1 order by DEMAND DESC" | tail -n+4  > $ns_info_dir$ns_info_file
+
+# copy file to other location 
+cp $ns_info_dir$ns_info_file $bk_dir$ns_info_filg

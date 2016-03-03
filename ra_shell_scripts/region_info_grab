@@ -1,0 +1,34 @@
+#!/bin/bash
+# this is CLUSTER version:
+# cron task to query Akamai query and obtain region information, saved in /home/testgrp/RAAnalysis/ra_data/rg_info/  
+# old version:
+# sql2 -qmap.dev.query.akadns.net --noprompt --format=left "select * from mcm_regions" | grep ',' | sed 's/,//g' | sed 's/\s\+/ /g' | awk '{print $1, $2, $3, $4, $5, $6, $7/1000, $8/1000;}' > /home/ychang/Documents/Projects/09-SystemInfo/mcm_Regions_grab.txt
+
+# logging
+echo "****** kicking off the region information message grabbing at" `date` "******"
+
+# get time
+epochtime=`date +%s`
+Year=`date -d @$epochtime -u +%Y`
+Month=`date -d @$epochtime -u +%m`
+Day=`date -d @$epochtime -u +%d`
+
+# file name
+rg_info_file=$(echo "region_info_"$Year$Month$Day".txt")
+
+# file location
+rg_info_dir="/home/testgrp/RAAnalysis/ra_data/rg_info/"
+#rg_info_dir="/home/ychang/Documents/Projects/09-SystemInfo/RG_info/"
+
+# backup location (obsolete)
+#bk_dir="/home/ychang/Documents/Projects/09-SystemInfo/RG_info/"
+
+# query information
+# remove the date in txt file (since it would be partitioned by date)
+#sql2 -q map.dev.query.akadns.net --noprompt --format=left "`cat /home/testgrp/RAAnalysis/ra_query/region_info_query.qr`" | tail -n+3 | sed 's/,//g' | sed 's/\s\+/ /g' | awk -v var=`echo $Year"-"$Month"-"$Day` 'NF>4{print $0, var}' | sed 's/\s\+/ /g' > $rg_info_dir$rg_info_file
+sql2 -q map.dev.query.akadns.net --noprompt --format=left "`cat /home/testgrp/RAAnalysis/ra_query/region_info_query.qr`" | tail -n+3 | sed 's/,//g' | sed 's/\s\+/ /g' | awk 'NF>4{print $0}' | sed 's/\s\+/ /g' > $rg_info_dir$rg_info_file
+
+
+# copy file to other location (obsolete)
+#cp $rg_info_dir$rg_info_file $bk_dir$rg_info_file
+

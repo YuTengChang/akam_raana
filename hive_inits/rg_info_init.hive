@@ -1,0 +1,22 @@
+add jar /a/libexec/ddr-1.0.jar;
+
+CREATE DATABASE IF NOT EXISTS RAANA;
+USE RAANA;
+
+drop table rg_info;
+
+create external table rg_info (
+    region INT,
+    ecor INT,
+    service STRING,
+    rg_name STRING,
+    nghost INT,
+    prp INT,
+    lat FLOAT,
+    lon FLOAT)
+
+partitioned by (datestamp STRING)
+row format delimited
+fields terminated by ' '
+lines terminated by '\n'
+location '/ghostcache/hadoop/data/RAANA/rg_info';
