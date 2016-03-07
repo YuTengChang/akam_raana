@@ -25,7 +25,6 @@ rg_info_dir="/home/testgrp/RAAnalysis/ra_data/rg_info/"
 
 # query information
 # remove the date in txt file (since it would be partitioned by date)
-#sql2 -q map.dev.query.akadns.net --noprompt --format=left "`cat /home/testgrp/RAAnalysis/ra_query/region_info_query.qr`" | tail -n+3 | sed 's/,//g' | sed 's/\s\+/ /g' | awk -v var=`echo $Year"-"$Month"-"$Day` 'NF>4{print $0, var}' | sed 's/\s\+/ /g' > $rg_info_dir$rg_info_file
 sql2 -q map.dev.query.akadns.net --noprompt --format=left "`cat /home/testgrp/RAAnalysis/ra_query/region_info_query.qr`" | tail -n+3 | sed 's/,//g' | sed 's/\s\+/ /g' | awk 'NF>4{print $0}' | sed 's/\s\+/ /g' > $rg_info_dir$rg_info_file
 
 
